@@ -7,21 +7,21 @@ public class BankAppGUI extends JFrame {
     private Connection conn;
 
     public BankAppGUI() {
-        // Window setup
+
         setTitle("Bank Data Analysis System");
         setSize(600, 400);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
-        // Database connection
+
         connectToDatabase();
 
-        // Title label
+
         JLabel title = new JLabel("Bank Analysis Dashboard", JLabel.CENTER);
-        title.setFont(new Font("Arial", Font.BOLD, 18));
+        title.setFont(new Font("Arial", Font.BOLD, 32));
         add(title, BorderLayout.NORTH);
 
-        // Buttons panel
+
         JPanel panel = new JPanel();
         panel.setLayout(new GridLayout(2, 2, 10, 10));
 
@@ -36,8 +36,6 @@ public class BankAppGUI extends JFrame {
         panel.add(btnOutliers);
 
         add(panel, BorderLayout.CENTER);
-
-        // Action Listeners
         btnAccounts.addActionListener(e -> showAccounts());
         btnDeposits.addActionListener(e -> showTotals());
         btnNegatives.addActionListener(e -> showNegativeBalances());

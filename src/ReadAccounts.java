@@ -10,17 +10,16 @@ public class ReadAccounts {
         String pass = "root";
 
         try {
-            // 1️⃣ Connect to Database
+
             Connection conn = DriverManager.getConnection(url, user, pass);
 
-            // 2️⃣ Create a Statement
+
             Statement stmt = conn.createStatement();
 
-            // 3️⃣ Execute SQL Query
             String query = "SELECT account_id, first_name, last_name, balance FROM accounts";
             ResultSet rs = stmt.executeQuery(query);
 
-            // 4️⃣ Loop through the results
+
             System.out.println("Account List:");
             System.out.println("--------------------------------------");
             while (rs.next()) {

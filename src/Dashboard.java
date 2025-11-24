@@ -3,6 +3,7 @@ import java.awt.*;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.List;
+
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -18,7 +19,14 @@ public class Dashboard extends JFrame {
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
 
-        // Buttons
+        loadHomeScreen();
+    }
+
+    // HOmescreen
+    private void loadHomeScreen() {
+        getContentPane().removeAll();
+        setLayout(new BorderLayout());
+
         JPanel topPanel = new JPanel();
         JButton barBtn = new JButton("Show Top 5 Accounts");
         JButton pieBtn = new JButton("Show Deposits vs Withdrawals");
@@ -26,22 +34,44 @@ public class Dashboard extends JFrame {
         topPanel.add(pieBtn);
         add(topPanel, BorderLayout.NORTH);
 
-        // Button actions
         barBtn.addActionListener(e -> showTopAccountsChart());
         pieBtn.addActionListener(e -> showDepositWithdrawalChart());
+
+        validate();
+        repaint();
     }
 
+    // charts  back
+    private void showChartWithBackButton(JFreeChart chart) {
+        JPanel panel = new JPanel(new BorderLayout());
+
+        // Add chart
+        panel.add(new ChartPanel(chart), BorderLayout.CENTER);
+
+        // Back button
+        JButton backBtn = new JButton("Back to Home");
+        backBtn.addActionListener(e -> loadHomeScreen());
+
+        JPanel topBar = new JPanel();
+        topBar.add(backBtn);
+        panel.add(topBar, BorderLayout.NORTH);
+
+        setContentPane(panel);
+        validate();
+    }
+
+    //Bar-graph
     private void showTopAccountsChart() {
         try {
             String url = "jdbc:mysql://127.0.0.1:3306/bank_analysis?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC";
             String user = "root";
             String pass = "root";
             Connection conn = DriverManager.getConnection(url, user, pass);
+
             DBUtils db = new DBUtils(conn);
-
             List<DBUtils.AccountVolume> topAccounts = db.fetchTopAccounts(5);
-            DefaultCategoryDataset dataset = new DefaultCategoryDataset();
 
+            DefaultCategoryDataset dataset = new DefaultCategoryDataset();
             for (DBUtils.AccountVolume av : topAccounts) {
                 dataset.addValue(av.totalAmount, "Transaction Volume", av.accountId);
             }
@@ -53,8 +83,7 @@ public class Dashboard extends JFrame {
                     dataset
             );
 
-            setContentPane(new ChartPanel(chart));
-            validate();
+            showChartWithBackButton(chart);
             conn.close();
 
         } catch (Exception ex) {
@@ -63,15 +92,17 @@ public class Dashboard extends JFrame {
         }
     }
 
+    // Charts
     private void showDepositWithdrawalChart() {
         try {
             String url = "jdbc:mysql://127.0.0.1:3306/bank_analysis?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC";
             String user = "root";
             String pass = "root";
             Connection conn = DriverManager.getConnection(url, user, pass);
-            DBUtils db = new DBUtils(conn);
 
+            DBUtils db = new DBUtils(conn);
             double[] totals = db.fetchDepositWithdrawalTotals();
+
             DefaultPieDataset dataset = new DefaultPieDataset();
             dataset.setValue("Deposits", totals[0]);
             dataset.setValue("Withdrawals", totals[1]);
@@ -82,17 +113,14 @@ public class Dashboard extends JFrame {
                     true, true, false
             );
 
-            setContentPane(new ChartPanel(chart));
-            validate();
+            showChartWithBackButton(chart);
             conn.close();
 
         } catch (Exception ex) {
             ex.printStackTrace();
             JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage());
         }
-    }
+    }}
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new Dashboard().setVisible(true));
-    }
-}
+
+
