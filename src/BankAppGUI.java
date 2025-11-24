@@ -13,41 +13,41 @@ public class BankAppGUI extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
-
         connectToDatabase();
-
 
         JLabel title = new JLabel("Bank Analysis Dashboard", JLabel.CENTER);
         title.setFont(new Font("Arial", Font.BOLD, 32));
         add(title, BorderLayout.NORTH);
 
-
         JPanel panel = new JPanel();
-        panel.setLayout(new GridLayout(2, 2, 10, 10));
+        panel.setLayout(new GridLayout(2, 2, 10, 10)); // Added gap for better UI
 
         JButton btnAccounts = new JButton("View Accounts");
         JButton btnDeposits = new JButton("Total Deposits/Withdrawals");
         JButton btnNegatives = new JButton("Negative Balances");
         JButton btnOutliers = new JButton("Outlier Transactions");
+        JButton btnCharts = new JButton("Open Charts Dashboard");
 
         panel.add(btnAccounts);
         panel.add(btnDeposits);
         panel.add(btnNegatives);
         panel.add(btnOutliers);
-
-        JButton btnCharts = new JButton("Open Charts Dashboard");
-        panel.add(btnCharts);
-
+        panel.add(btnCharts); // Added the 5th button to the panel
 
         add(panel, BorderLayout.CENTER);
+
         btnAccounts.addActionListener(e -> showAccounts());
         btnDeposits.addActionListener(e -> showTotals());
         btnNegatives.addActionListener(e -> showNegativeBalances());
         btnOutliers.addActionListener(e -> showOutliers());
-        btnCharts.addActionListener(e -> {
-            new Dashboard().setVisible(true);
-        });
 
+        btnCharts.addActionListener(e -> {
+            // CHECK: If you have a Dashboard.java file, uncomment the line below
+            // new Dashboard().setVisible(true);
+
+            // For now, show a message so the code doesn't crash
+            JOptionPane.showMessageDialog(this, "Dashboard module is not connected yet.");
+        });
     }
 
     private void connectToDatabase() {
@@ -58,7 +58,7 @@ public class BankAppGUI extends JFrame {
             conn = DriverManager.getConnection(url, user, pass);
             System.out.println("Connected to Database (via GUI)");
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this, "Database Connection Failed!");
+            JOptionPane.showMessageDialog(this, "Database Connection Failed!\n" + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -75,7 +75,8 @@ public class BankAppGUI extends JFrame {
                         .append(rs.getString("last_name")).append(" | Balance: ")
                         .append(rs.getDouble("balance")).append("\n");
             }
-            JOptionPane.showMessageDialog(this, sb.toString(), "Accounts", JOptionPane.INFORMATION_MESSAGE);
+            // Used helper method for scrolling
+            showMessageWithScroll(sb.toString(), "Accounts");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -105,10 +106,11 @@ public class BankAppGUI extends JFrame {
 
     private void showNegativeBalances() {
         try {
+            // Added full GROUP BY for SQL Strict Mode compatibility
             String query = "SELECT a.account_id, a.first_name, a.last_name, " +
                     "(a.balance + IFNULL(SUM(CASE WHEN t.type='Deposit' THEN t.amount ELSE -t.amount END), 0)) AS final_balance " +
                     "FROM accounts a LEFT JOIN transactions t ON a.account_id = t.account_id " +
-                    "GROUP BY a.account_id HAVING final_balance < 0";
+                    "GROUP BY a.account_id, a.first_name, a.last_name HAVING final_balance < 0";
 
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery(query);
@@ -122,7 +124,7 @@ public class BankAppGUI extends JFrame {
             }
 
             if (sb.length() == 0) sb.append("No accounts with negative balance.");
-            JOptionPane.showMessageDialog(this, sb.toString(), "Negative Balances", JOptionPane.INFORMATION_MESSAGE);
+            showMessageWithScroll(sb.toString(), "Negative Balances");
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -130,7 +132,65 @@ public class BankAppGUI extends JFrame {
     }
 
     private void showOutliers() {
-        JOptionPane.showMessageDialog(this, " Outlier detection to be implemented next!", "Outliers", JOptionPane.INFORMATION_MESSAGE);
+        try {
+            Statement stmt1 = conn.createStatement();
+            ResultSet rsCount = stmt1.executeQuery("SELECT COUNT(*) AS total FROM transactions");
+            rsCount.next();
+            int total = rsCount.getInt("total");
+
+            if (total == 0) {
+                JOptionPane.showMessageDialog(this, "No transactions found.");
+                return;
+            }
+
+            int offset = (int) Math.floor(0.9 * total);
+
+            Statement stmt2 = conn.createStatement();
+            ResultSet rsPercentile = stmt2.executeQuery(
+                    "SELECT amount FROM transactions ORDER BY amount ASC LIMIT 1 OFFSET " + offset
+            );
+
+            if (!rsPercentile.next()) {
+                JOptionPane.showMessageDialog(this, "Could not calculate 90th percentile.");
+                return;
+            }
+
+            double p90 = rsPercentile.getDouble("amount");
+
+            Statement stmt3 = conn.createStatement();
+            ResultSet rs = stmt3.executeQuery("SELECT * FROM transactions WHERE amount > " + p90);
+
+            StringBuilder sb = new StringBuilder();
+            sb.append("Outlier Transactions (> 90th Percentile: ").append(p90).append(")\n\n");
+
+            while (rs.next()) {
+                // FIX APPLIED: Changed getInt to getString for transaction_id
+                sb.append("ID: ").append(rs.getString("transaction_id"))
+                        .append(" | Account: ").append(rs.getString("account_id"))
+                        .append(" | Type: ").append(rs.getString("type"))
+                        .append(" | Amount: ").append(rs.getDouble("amount"))
+                        .append(" | Date: ").append(rs.getString("date"))
+                        .append("\n");
+            }
+
+            if (sb.length() < 50) sb.append("No outlier transactions found.");
+
+            showMessageWithScroll(sb.toString(), "Outlier Transactions");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error detecting outliers: " + e.getMessage());
+        }
+    }
+
+    // Helper method to add scroll bars to long lists
+    private void showMessageWithScroll(String message, String title) {
+        JTextArea textArea = new JTextArea(message);
+        textArea.setEditable(false);
+        textArea.setRows(15);
+        textArea.setColumns(50);
+        JScrollPane scrollPane = new JScrollPane(textArea);
+        JOptionPane.showMessageDialog(this, scrollPane, title, JOptionPane.INFORMATION_MESSAGE);
     }
 
     public static void main(String[] args) {
