@@ -13,7 +13,7 @@ public class Main {
         String pass = "root";
 
         try {
-            // databse tester
+            // database tester
             Connection conn = DriverManager.getConnection(url, user, pass);
             System.out.println("Database connection successful!");
             conn.close();

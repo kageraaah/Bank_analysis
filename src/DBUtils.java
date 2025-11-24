@@ -30,7 +30,7 @@ public class DBUtils {
         }
     }
 
-    // Fetch top N accounts by total transaction amount
+    // to fetch the top accounts
     public List<AccountVolume> fetchTopAccounts(int topN) throws SQLException {
         String sql = "SELECT account_id, SUM(amount) AS total_amount " +
                 "FROM transactions GROUP BY account_id " +
@@ -51,7 +51,7 @@ public class DBUtils {
         }
     }
 
-    // ✅ Fetch total deposits vs withdrawals
+    // to get the withdrawals
     public double[] fetchDepositWithdrawalTotals() throws SQLException {
         String sql = "SELECT type, SUM(amount) AS total FROM transactions GROUP BY type";
         double deposits = 0;
@@ -69,7 +69,7 @@ public class DBUtils {
         return new double[]{deposits, withdrawals};
     }
 
-    // ✅ Inner class to store account & total volume
+    // account volume
     public static class AccountVolume {
         public final String accountId;
         public final double totalAmount;

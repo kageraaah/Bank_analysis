@@ -22,7 +22,7 @@ public class Dashboard extends JFrame {
         loadHomeScreen();
     }
 
-    // HOmescreen
+    // Homescreen
     private void loadHomeScreen() {
         getContentPane().removeAll();
         setLayout(new BorderLayout());

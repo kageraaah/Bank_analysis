@@ -49,7 +49,7 @@ public class BankAppGUI extends JFrame {
             JOptionPane.showMessageDialog(this, "Dashboard module is not connected yet.");
         });
     }
-
+// databse connectors
     private void connectToDatabase() {
         String url = "jdbc:mysql://localhost:3306/bank_analysis";
         String user = "root";
@@ -62,7 +62,7 @@ public class BankAppGUI extends JFrame {
             e.printStackTrace();
         }
     }
-
+// code for showing accounts
     private void showAccounts() {
         try {
             Statement stmt = conn.createStatement();
@@ -81,7 +81,7 @@ public class BankAppGUI extends JFrame {
             e.printStackTrace();
         }
     }
-
+// totals code
     private void showTotals() {
         try {
             Statement stmt = conn.createStatement();
@@ -103,6 +103,7 @@ public class BankAppGUI extends JFrame {
             e.printStackTrace();
         }
     }
+// desciptions of the negative balances
 
     private void showNegativeBalances() {
         try {
@@ -130,7 +131,7 @@ public class BankAppGUI extends JFrame {
             e.printStackTrace();
         }
     }
-
+// showing descptiption of outlier transactions
     private void showOutliers() {
         try {
             Statement stmt1 = conn.createStatement();
@@ -183,7 +184,7 @@ public class BankAppGUI extends JFrame {
         }
     }
 
-    // Helper method to add scroll bars to long lists
+    // scroll bar
     private void showMessageWithScroll(String message, String title) {
         JTextArea textArea = new JTextArea(message);
         textArea.setEditable(false);
