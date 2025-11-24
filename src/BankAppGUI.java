@@ -35,11 +35,19 @@ public class BankAppGUI extends JFrame {
         panel.add(btnNegatives);
         panel.add(btnOutliers);
 
+        JButton btnCharts = new JButton("Open Charts Dashboard");
+        panel.add(btnCharts);
+
+
         add(panel, BorderLayout.CENTER);
         btnAccounts.addActionListener(e -> showAccounts());
         btnDeposits.addActionListener(e -> showTotals());
         btnNegatives.addActionListener(e -> showNegativeBalances());
         btnOutliers.addActionListener(e -> showOutliers());
+        btnCharts.addActionListener(e -> {
+            new Dashboard().setVisible(true);
+        });
+
     }
 
     private void connectToDatabase() {

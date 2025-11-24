@@ -6,24 +6,25 @@ public class Main {
 
     public static void main(String[] args) {
 
+        System.out.println("Starting Bank Analysis Application...");
+
         String url = "jdbc:mysql://localhost:3306/bank_analysis";
         String user = "root";
         String pass = "root";
 
-        System.out.println("Starting Bank Analysis Application...");
-
         try {
-
+            // databse tester
             Connection conn = DriverManager.getConnection(url, user, pass);
             System.out.println("Database connection successful!");
             conn.close();
 
+            //to open Bankapp
             SwingUtilities.invokeLater(() -> {
-                new Dashboard().setVisible(true);
+                new BankAppGUI().setVisible(true);
             });
 
         } catch (Exception e) {
-            System.err.println(" Database connection failed!");
+            System.err.println("Database connection failed!");
             e.printStackTrace();
         }
     }
