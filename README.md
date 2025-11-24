@@ -30,7 +30,7 @@ Main Table: accounts
 Example structure:
 
 CREATE TABLE accounts (
-    account_id INT PRIMARY KEY,
+    account_id VARCHAR PRIMARY KEY,
     account_name VARCHAR(255),
     balance DOUBLE,
     account_type VARCHAR(50)
@@ -59,7 +59,7 @@ In DatabaseConnection.java:
 
 String url = "jdbc:mysql://localhost:3306/bank_analysis";
 String user = "root";
-String password = "YOUR_PASSWORD";
+String password = "YOUR_PASSWORD";('root')
 
 4. Run the App
 
@@ -75,4 +75,4 @@ Analyze bank accounts
 
 Show charts and histograms
 
-Add / update / delete accounts (if implemented)
+when running, java must be connected to the data base
